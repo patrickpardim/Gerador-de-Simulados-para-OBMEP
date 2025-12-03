@@ -1,14 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { Level, Simulado, Question } from '../types';
 
-const API_KEY = process.env.API_KEY;
-
-if (!API_KEY) {
-  throw new Error("API_KEY environment variable not set");
-}
-
-const ai = new GoogleGenAI({ apiKey: API_KEY });
-
 const getLevelDescription = (level: Level): string => {
   switch (level) {
     case Level.Nivel1:
@@ -23,6 +15,13 @@ const getLevelDescription = (level: Level): string => {
 };
 
 export const generateSimulado = async (level: Level, numQuestions: number): Promise<Simulado> => {
+  // Inicializa a IA dentro da função para evitar erros no carregamento da página caso a chave falte
+  if (!process.env.API_KEY) {
+    throw new Error("A chave da API (API_KEY) não foi encontrada. Se estiver no Vercel, verifique as 'Environment Variables'. Se estiver local, verifique seu arquivo .env.");
+  }
+
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
   const levelDescription = getLevelDescription(level);
 
   const prompt = `Você é um especialista em criar problemas de matemática para a Olimpíada Brasileira de Matemática das Escolas Públicas (OBMEP).
@@ -115,8 +114,12 @@ O resultado deve ser um objeto JSON válido. Não inclua nenhum texto, explicaç
       level,
       questions: typedQuestions,
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Erro ao chamar a API Gemini ou ao processar a resposta:", error);
+    // Repassa a mensagem de erro original se for sobre a API KEY, caso contrário dá uma mensagem genérica
+    if (error.message && error.message.includes("API_KEY")) {
+        throw error;
+    }
     throw new Error("Não foi possível gerar o simulado. Por favor, tente novamente.");
   }
 };
