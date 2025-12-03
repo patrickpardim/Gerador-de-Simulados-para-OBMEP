@@ -1,0 +1,5 @@
+{
+  "name": "v2.7.0 - Gerador de Simulados para OBMEP ",
+  "description": "Um aplicativo para gerar simulados personalizados para a Olimpíada Brasileira de Matemática das Escolas Públicas (OBMEP), utilizando IA para criar questões únicas e relevantes para cada nível.",
+  "requestFramePermissions": []
+}
